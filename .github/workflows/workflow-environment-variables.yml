@@ -1,0 +1,70 @@
+name: Python App Workflow with Environment Variables
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  PYTHON_VERSION: "3.10"
+  REQUIREMENTS_FILE: "requirements.txt"
+  LINT_PATHS: "app/ tests/"
+
+jobs:
+  build:
+    name: Build Environment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ${{ env.REQUIREMENTS_FILE }}
+
+  lint:
+    name: Lint Code
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install flake8
+        run: pip install flake8
+
+      - name: Run Linter
+        run: flake8 ${{ env.LINT_PATHS }}
+
+  test:
+    name: Run Tests
+    needs: [build, lint]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ${{ env.REQUIREMENTS_FILE }}
+
+      - name: Run Tests
+        run: pytest tests/
