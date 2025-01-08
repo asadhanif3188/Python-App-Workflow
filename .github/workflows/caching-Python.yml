@@ -1,9 +1,7 @@
 name: Cache Python Dependencies
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   build:
